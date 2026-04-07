@@ -13,6 +13,18 @@ pipeline {
                 }
             }
         }
+
+        stage('ports')
+        {
+            agent any
+            steps {
+                script {
+                    echo "Checking open ports..."
+                    // Add your port checking commands here
+                    sh 'netstat -lntp'
+                }
+            }
+        }
     }
     
     post {
