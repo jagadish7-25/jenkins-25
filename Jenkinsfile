@@ -22,6 +22,7 @@ pipeline {
                     echo "Checking open ports..."
                     // Add your port checking commands here
                     sh 'netstat -lntp'
+                    sh 'env'
                 }
             }
         }
