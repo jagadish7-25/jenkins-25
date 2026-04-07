@@ -19,19 +19,14 @@ pipeline {
         always {
             echo "Monitoring complete"
             cleanWs()
-        
         }
 
-        {
-            failure {
-                echo "Monitoring failed. Please check the logs for details."
-            }
+        failure {
+            echo "Monitoring failed. Please check the logs for details."
         }
 
-        {
-            success {
-                echo "Monitoring succeeded. Server is healthy."
-            }
+        success {
+            echo "Monitoring succeeded. Server is healthy."
         }
     }
 }
