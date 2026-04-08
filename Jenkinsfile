@@ -1,54 +1,59 @@
 pipeline {
     agent { label 'agent-1' }
-    
+
+    environment {
+        AWS_ACCOUNT_ID = '993268716422'
+        AWS_REGION = 'us-east-1'
+        IMAGE_NAME = 'roboshop/catalogue'
+    }
+
     stages {
         stage('Monitor Server') {
             steps {
-                script {
-                    echo "Starting server monitoring on agent-1..."
-                    sh 'echo "Checking server health on agent-1"'
-                    sh 'uptime'
-                }
+                echo "Starting server monitoring on agent-1..."
+                sh 'echo "Checking server health on agent-1"'
+                sh 'uptime'
             }
         }
 
-        stage('ports') {
+        stage('Ports Check') {
             steps {
-                script {
-                    echo "Checking open ports on agent-1..."
-                    sh 'netstat -lntp'
-                    sh 'env'
-                }
+                echo "Checking open ports on agent-1..."
+                sh 'ss -lntp'
+                sh 'env'
             }
         }
 
-        stage ('Docker build Image') {
+        stage('Docker Build & Push') {
             steps {
-                script {
-                    withAws(region: 'us-east-1', credentials: 'aws-creds') {
-                        sh """ 
-                            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 993268716422.dkr.ecr.us-east-1.amazonaws.com
-                            docker build -t roboshop/catalouge .
-                            docker tag roboshop/catalouge:latest 993268716422.dkr.ecr.us-east-1.amazonaws.com/roboshop/catalouge:latest
-                            docker push 993268716422.dkr.ecr.us-east-1.amazonaws.com/roboshop/catalouge:latest
-                            docker images 
-                        """
-                    }
-                }    
+                withAWS(region: "${AWS_REGION}", credentials: 'aws-creds') {
+                    sh """
+                        aws ecr get-login-password --region ${AWS_REGION} | \
+                        docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+                        docker build -t ${IMAGE_NAME} .
+
+                        docker tag ${IMAGE_NAME}:latest \
+                        ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:latest
+
+                        docker push \
+                        ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:latest
+
+                        docker images
+                    """
+                }
             }
         }
     }
-    
+
     post {
         always {
             echo "Monitoring complete"
             cleanWs()
         }
-
         failure {
-            echo "Monitoring failed. Please check the logs for details."
+            echo "Monitoring failed. Please check logs."
         }
-
         success {
             echo "Monitoring succeeded. Server is healthy."
         }
