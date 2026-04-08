@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = '993268716422'
         AWS_REGION = 'us-east-1'
-        IMAGE_NAME = 'roboshop/catalogue'
+        IMAGE_NAME = 'jenkins-25/cars'
     }
 
     stages {
