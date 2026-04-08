@@ -1,26 +1,21 @@
 pipeline {
-    agent agent-1
+    agent { label 'agent-1' }
     
     stages {
         stage('Monitor Server') {
-            agent any
             steps {
                 script {
-                    echo "Starting server monitoring..."
-                    // Add your monitoring commands here
-                    sh 'echo "Checking server health"'
+                    echo "Starting server monitoring on agent-1..."
+                    sh 'echo "Checking server health on agent-1"'
                     sh 'uptime'
                 }
             }
         }
 
-        stage('ports')
-        {
-            agent any
+        stage('ports') {
             steps {
                 script {
-                    echo "Checking open ports..."
-                    // Add your port checking commands here
+                    echo "Checking open ports on agent-1..."
                     sh 'netstat -lntp'
                     sh 'env'
                 }
